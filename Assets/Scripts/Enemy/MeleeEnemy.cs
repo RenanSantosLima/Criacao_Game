@@ -10,10 +10,28 @@ public class MeleeEnemy : BaseEnemy
     //tempo de espera do ataque
     private float cooldownTimer;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        base.enemyHealth.OnHurt += EnemyHurtSound;
+        base.enemyHealth.OnDead += EnemyDeadSound;
+    }
+
     protected override void Update()
     {
         cooldownTimer += Time.deltaTime;
         VerifyCanAttack();
+    }
+
+    //sons
+    private void EnemyHurtSound()
+    {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.EnemyHurt);
+    }
+
+    private void EnemyDeadSound()
+    {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.EnemyDead);
     }
 
     //ataque

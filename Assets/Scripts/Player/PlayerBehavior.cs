@@ -4,6 +4,7 @@ public class PlayerBehavior : MonoBehaviour
 {
     private Rigidbody2D rigidBody;
     private IsGroundedChecker isGroundedChecker;
+    private Health health;
 
     //velocidade da movimentação e jump
     [SerializeField] private float moveSpeed = 5;
@@ -21,8 +22,11 @@ public class PlayerBehavior : MonoBehaviour
     {
         rigidBody = GetComponent<Rigidbody2D>();
         isGroundedChecker = GetComponent<IsGroundedChecker>();
+        health = GetComponent<Health>();
 
-        GetComponent<Health>().OnDead += HandlePlayerDeath;
+        //ação dos eventos
+        health.OnHurt += PlayerSoundHurt;
+        health.OnDead += HandlePlayerDeath;
     }
 
     private void Start()
@@ -62,19 +66,34 @@ public class PlayerBehavior : MonoBehaviour
         if (isGroundedChecker.IsGrounded() == false) return;
         rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce);
         //rigidBody.velocity = Vector2.up * jumpForce;
+        GameManager.Instance.AudioManager.PlaySFX(SFX.PlayerJump);
+    }
+
+    //som do dano
+    private void PlayerSoundHurt()
+    {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.PlayerHurt);
     }
 
     //ação do evento de mmorte para desativar todos os componentes
     private void HandlePlayerDeath()
     {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.PlayerDeath);
         GetComponent<Collider2D>().enabled = false;
         rigidBody.constraints = RigidbodyConstraints2D.FreezeAll;
         GameManager.Instance.inputManager.DisablePlayerInput();
     }
 
+    //som andar
+    private void PlayerWalkSound()
+    {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.PlayerWalk);
+    }
+
     //ação de ataque
     private void Attack()
     {
+        GameManager.Instance.AudioManager.PlaySFX(SFX.PlayerAttack);
         Collider2D[] hittedEnemies = Physics2D.OverlapCircleAll(attackPosition.position, attackRange, attackLayer);
         print("Making enemy take damage");
         print(hittedEnemies.Length);
